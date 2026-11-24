@@ -12,6 +12,7 @@ class AtelierAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      actionsPadding: EdgeInsets.symmetric(horizontal: 12),
       backgroundColor: Colors.transparent,
       scrolledUnderElevation: 0,
       systemOverlayStyle: SystemUiOverlayStyle.dark,
@@ -37,7 +38,6 @@ class AtelierAppBar extends StatelessWidget implements PreferredSizeWidget {
             backgroundColor: AppColors.primary,
             child: Icon(Icons.notifications_none_outlined),
           ),
-          style: IconButton.styleFrom(padding: EdgeInsets.all(24)),
         ),
       ],
     );

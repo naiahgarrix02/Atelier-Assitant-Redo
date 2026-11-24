@@ -1,3 +1,4 @@
+import 'package:atelier_redo/views/customers/add_customers_screen.dart';
 import 'package:atelier_redo/widgets/common/atelier_app_bar.dart';
 import 'package:atelier_redo/widgets/customers/customer_tile.dart';
 import 'package:material_ui/material_ui.dart';
@@ -230,7 +231,14 @@ class DashboardScreen extends StatelessWidget {
                   spacing: 12,
                   children: [
                     FilledButton.icon(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AddCustomersScreen(),
+                          ),
+                        );
+                      },
                       style: FilledButton.styleFrom(
                         padding: EdgeInsets.all(18),
                       ),

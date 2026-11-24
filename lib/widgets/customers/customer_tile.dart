@@ -43,7 +43,7 @@ class CustomerTile extends StatelessWidget {
                       customer.name,
                       style: TextStyle(
                         fontSize: 20,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w500,
                         color: AppColors.textPrimary,
                       ),
                     ),
