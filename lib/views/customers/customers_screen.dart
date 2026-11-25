@@ -1,5 +1,5 @@
 import 'package:atelier_redo/core/constants/app_colors.dart';
-import 'package:atelier_redo/views/customers/add_customers_screen.dart';
+import 'package:atelier_redo/views/customers/add_customer_screen.dart';
 import 'package:atelier_redo/widgets/common/atelier_app_bar.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -111,7 +111,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AddCustomersScreen()),
+                  MaterialPageRoute(builder: (context) => AddCustomerScreen()),
                 );
               },
               label: Row(
@@ -265,7 +265,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => AddCustomersScreen(),
+                                    builder: (context) => AddCustomerScreen(),
                                   ),
                                 );
                               },
