@@ -232,7 +232,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                         itemCount: filtered.length,
                         itemBuilder: ((context, index) {
                           return CustomerTile(
-                            customer: customers[index],
+                            customer: filtered[index],
                             onTap: () {},
                           );
                         }),
