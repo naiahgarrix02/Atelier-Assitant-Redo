@@ -1,6 +1,10 @@
 import 'package:atelier_redo/core/constants/app_colors.dart';
 import 'package:atelier_redo/models/country.dart';
+import 'package:atelier_redo/models/customer.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:atelier_redo/viewmodels/customer_viewmodel.dart';
+import 'package:uuid/uuid.dart';
+import 'package:provider/provider.dart';
 
 class AddCustomerScreen extends StatefulWidget {
   const AddCustomerScreen({super.key});
@@ -27,6 +31,56 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
     notesController.dispose();
 
     super.dispose();
+  }
+
+  String cleanPhone(String text) {
+    final digits = text.replaceAll(RegExp(r'[^0-9]'), ' ');
+
+    final number = digits.startsWith('0') ? digits.substring(1) : digits;
+    return number;
+  }
+
+  String? validatePhone(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Phone Number is required';
+    }
+
+    final number = cleanPhone(value);
+
+    if (selectedCountry.dialCode == '+233' && number.length != 9) {
+      return 'Enter 9 digits after +233';
+    }
+    if (number.length < 7 || number.length > 12) {
+      return 'Enter 7 or 12 digits for selected country';
+    }
+
+    return null;
+  }
+
+  Future<void> pickCountry() async {
+    final result = await showModalBottomSheet<Country>(
+      context: context,
+      builder: (context) {
+        return ListView.builder(
+          shrinkWrap: true,
+          itemCount: countries.length,
+          itemBuilder: ((context, index) {
+            final c = countries[index];
+            return ListTile(
+              leading: Text(c.flag),
+              title: Text(c.name),
+              trailing: Text(c.dialCode),
+              onTap: () => Navigator.pop(context, c),
+            );
+          }),
+        );
+      },
+    );
+    if (result != null) {
+      setState(() {
+        selectedCountry = result;
+      });
+    }
   }
 
   @override
@@ -59,7 +113,26 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                 ),
                 onPressed: () {
                   if (formKey.currentState!.validate()) {
-                    print('valid');
+                    final customer = Customer(
+                      id: const Uuid().v4(),
+                      name: nameController.text.trim(),
+                      phone:
+                          '${selectedCountry.dialCode}${cleanPhone(phoneController.text)}',
+                      email: emailController.text.isEmpty
+                          ? null
+                          : emailController.text,
+                      notes: notesController.text.isEmpty
+                          ? null
+                          : notesController.text,
+                      createdAt: DateTime.now(),
+                      updatedAt: DateTime.now(),
+                    );
+                    context.read<CustomerViewModel>().addCustomer(customer);
+
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text('Customer saved')));
+                    Navigator.pop(context);
                   }
                 },
                 icon: Icon(Icons.check),
@@ -140,7 +213,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                 ),
               ),
 
-              SizedBox(height: 16),
+              SizedBox(height: 32),
 
               Container(
                 decoration: BoxDecoration(
@@ -185,7 +258,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                               borderSide: BorderSide(color: AppColors.border),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30),
+                              borderRadius: BorderRadius.circular(18),
                               borderSide: BorderSide(
                                 color: AppColors.primary,
                                 width: 1.5,
@@ -226,14 +299,11 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                         TextFormField(
                           controller: phoneController,
                           textCapitalization: TextCapitalization.words,
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'Phone is required to save a customer profile';
-                            }
-                            return null;
-                          },
+                          validator: validatePhone,
+                          keyboardType: TextInputType.phone,
                           decoration: InputDecoration(
                             prefixIcon: InkWell(
+                              onTap: pickCountry,
                               child: Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 16),
                                 child: Row(
@@ -259,7 +329,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                               borderSide: BorderSide(color: AppColors.border),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30),
+                              borderRadius: BorderRadius.circular(18),
                               borderSide: BorderSide(
                                 color: AppColors.primary,
                                 width: 1.5,
@@ -274,6 +344,126 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                             ),
                             focusedErrorBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(30),
+                              borderSide: BorderSide(
+                                color: AppColors.error,
+                                width: 1.5,
+                              ),
+                            ),
+                            errorStyle: TextStyle(
+                              color: AppColors.error,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(height: 28),
+
+                        Text(
+                          'Email',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        TextFormField(
+                          controller: emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return null;
+                            }
+
+                            final email = value.trim();
+                            if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
+                                .hasMatch(email)) {
+                              return 'Please enter a valid email';
+                            }
+                            return null;
+                          },
+                          decoration: InputDecoration(
+                            hintText: 'e.g. jamesjones@email.com',
+                            hintStyle: TextStyle(
+                              fontSize: 16,
+                              color: AppColors.textInactive,
+                            ),
+                            filled: true,
+                            fillColor: AppColors.onPrimary,
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30),
+                              borderSide: BorderSide(color: AppColors.border),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(18),
+                              borderSide: BorderSide(
+                                color: AppColors.primary,
+                                width: 1.5,
+                              ),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30),
+                              borderSide: BorderSide(
+                                color: AppColors.error,
+                                width: 1,
+                              ),
+                            ),
+                            focusedErrorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30),
+                              borderSide: BorderSide(
+                                color: AppColors.error,
+                                width: 1.5,
+                              ),
+                            ),
+                            errorStyle: TextStyle(
+                              color: AppColors.error,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(height: 28),
+
+                        Text(
+                          'Atelier Notes',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        TextFormField(
+                          maxLines: 5,
+                          controller: notesController,
+                          decoration: InputDecoration(
+                            hintText: 'Special fabric preferences, fit requirements, preferred appointment times, silk sensitivity...',
+                            hintStyle: TextStyle(
+                              fontSize: 16,
+                              color: AppColors.textInactive,
+                            ),
+                            filled: true,
+                            fillColor: AppColors.onPrimary,
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(18),
+                              borderSide: BorderSide(color: AppColors.border),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(28),
+                              borderSide: BorderSide(
+                                color: AppColors.primary,
+                                width: 1.5,
+                              ),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(18),
+                              borderSide: BorderSide(
+                                color: AppColors.error,
+                                width: 1,
+                              ),
+                            ),
+                            focusedErrorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(18),
                               borderSide: BorderSide(
                                 color: AppColors.error,
                                 width: 1.5,

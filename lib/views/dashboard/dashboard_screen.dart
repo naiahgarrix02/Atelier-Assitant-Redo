@@ -3,66 +3,17 @@ import 'package:atelier_redo/widgets/common/atelier_app_bar.dart';
 import 'package:atelier_redo/widgets/customers/customer_tile.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
+import 'package:atelier_redo/viewmodels/customer_viewmodel.dart';
 
 import '../../core/constants/app_colors.dart';
-import '../../models/customer.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final List<Customer> customers = [
-      Customer(
-        id: '0001',
-        name: 'Ivan',
-        phone: '+233 54 867 8964',
-        createdAt: DateTime.now().subtract(const Duration(days: 6)),
-        updatedAt: DateTime.now(),
-      ),
-      Customer(
-        id: '0002',
-        name: 'Elise',
-        phone: '+233 54 867 8964',
-        createdAt: DateTime.now().subtract(const Duration(days: 5)),
-        updatedAt: DateTime.now(),
-      ),
-      Customer(
-        id: '0003',
-        name: 'Jacob',
-        phone: '+233 54 867 8964',
-        createdAt: DateTime.now().subtract(const Duration(days: 4)),
-        updatedAt: DateTime.now(),
-      ),
-      Customer(
-        id: '0004',
-        name: 'Kevin',
-        phone: '+233 54 867 8964',
-        createdAt: DateTime.now().subtract(const Duration(days: 3)),
-        updatedAt: DateTime.now(),
-      ),
-      Customer(
-        id: '0005',
-        name: 'Myles',
-        phone: '+233 54 867 8964',
-        createdAt: DateTime.now().subtract(const Duration(days: 2)),
-        updatedAt: DateTime.now(),
-      ),
-      Customer(
-        id: '0006',
-        name: 'Wendy',
-        phone: '+233 54 867 8964',
-        createdAt: DateTime.now().subtract(const Duration(days: 1)),
-        updatedAt: DateTime.now(),
-      ),
-      Customer(
-        id: '0007',
-        name: 'Irene',
-        phone: '+233 54 867 8964',
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      ),
-    ];
+    final customers = context.watch<CustomerViewModel>().customers;
 
     final sorted = [...customers];
     sorted.sort((a, b) => b.createdAt.compareTo(a.createdAt));

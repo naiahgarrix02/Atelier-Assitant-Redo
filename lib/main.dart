@@ -1,5 +1,7 @@
+import 'package:atelier_redo/viewmodels/customer_viewmodel.dart';
 import 'package:atelier_redo/views/main_shell.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:provider/provider.dart';
 
 import 'core/theme/app_theme.dart';
 
@@ -12,10 +14,13 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: AppTheme.light,
-      debugShowCheckedModeBanner: false,
-      home: MainShell(),
+    return ChangeNotifierProvider(
+      create: (context) => CustomerViewModel(),
+      child: MaterialApp(
+        theme: AppTheme.light,
+        debugShowCheckedModeBanner: false,
+        home: MainShell(),
+      ),
     );
   }
 }
